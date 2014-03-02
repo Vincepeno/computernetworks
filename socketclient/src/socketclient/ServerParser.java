@@ -65,10 +65,9 @@ public class ServerParser {
 	
 	public void getWebpage(){
 		try {
-			
-			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
-			outToServer.writeUTF("GET www.google.com/index.html 80 HTTP\1.0"); 
 			Socket socket = new Socket("www.google.be",80);
+			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
+			outToServer.writeUTF("GET www.google.be/index.html 80 HTTP\1.0"); 
 			// HTTP/1.0 400 Bad Request
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String modifiedSentence = inFromServer.readLine();
