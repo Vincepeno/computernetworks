@@ -17,5 +17,6 @@ public class Example {
 		String t;
 		while((t = br.readLine()) != null) System.out.println(t);
 		br.close();
+//		 bufferedreader \\writebytes
 	}
 }
