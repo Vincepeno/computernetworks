@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -65,21 +66,20 @@ public class ServerParser {
 	
 	public void getWebpage(){
 		try {
-			Socket socket = new Socket("www.example.com",80);
-			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
-//			String teststring = "GET / HTTP/1.0"+"\n"+"host: www.wikipedia.be"+"\n"+"";
-//			System.out.println(teststring);
-			outToServer.writeUTF("GET /index.html HTTP/1.0"+"\n"+"host: www.example.com"+"\n"+"");
-			//Socket socket = new Socket("www.google.be",80);
-			// HTTP/1.0 400 Bad Request
+			Socket socket = new Socket("www.hattrick.org",80);
+//			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
+//			//outToServer.writeUTF("GET /index.html HTTP/1.0"+"\n"+"host: www.example.com"+"\n"+"");
+			PrintWriter pw = new PrintWriter(socket.getOutputStream());
+			pw.println("GET / HTTP/1.0");
+			pw.println("host: www.hattrick.org");
+			pw.println();
+			pw.flush();
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			//Extra toegevoegd: readline leest enkel eerste zin van document --> while lus
 			String line;
 			while ((line = inFromServer.readLine()) != null) {
 			    System.out.println(line);
 			}
-			//String modifiedSentence = inFromServer.readLine();
-			//System.out.println(modifiedSentence);
 			socket.close();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -100,3 +100,4 @@ public class ServerParser {
 	
 
 }
+
