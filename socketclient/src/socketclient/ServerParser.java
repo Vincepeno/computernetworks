@@ -65,14 +65,21 @@ public class ServerParser {
 	
 	public void getWebpage(){
 		try {
-			
+			Socket socket = new Socket("www.example.com",80);
 			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
-			outToServer.writeUTF("GET www.google.com/index.html 80 HTTP\1.0"); 
-			Socket socket = new Socket("www.google.be",80);
+//			String teststring = "GET / HTTP/1.0"+"\n"+"host: www.wikipedia.be"+"\n"+"";
+//			System.out.println(teststring);
+			outToServer.writeUTF("GET /index.html HTTP/1.0"+"\n"+"host: www.example.com"+"\n"+"");
+			//Socket socket = new Socket("www.google.be",80);
 			// HTTP/1.0 400 Bad Request
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String modifiedSentence = inFromServer.readLine();
-			System.out.println(modifiedSentence);
+			//Extra toegevoegd: readline leest enkel eerste zin van document --> while lus
+			String line;
+			while ((line = inFromServer.readLine()) != null) {
+			    System.out.println(line);
+			}
+			//String modifiedSentence = inFromServer.readLine();
+			//System.out.println(modifiedSentence);
 			socket.close();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
