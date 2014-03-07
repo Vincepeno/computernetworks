@@ -14,14 +14,36 @@ import java.nio.file.Paths;
 
 public class ServerParser {
 
-	String client;
-	String command;
+	
+	private String command;
 	//The main domain name
-	String uri1;
+	private String uri1;
+	public String getUri1() {
+		return uri1;
+	}
+
+	public String getUri2() {
+		return uri2;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public double gethTTPVersion() {
+		return hTTPVersion;
+	}
+
+	public String getPutInput() {
+		return putInput;
+	}
+
 	//The rest of the uri
-	String uri2="";
-	int port;
-	double hTTPVersion;
+	private String uri2="";
+	private int port;
+	private double hTTPVersion;
+	private boolean put=false;
+	private String putInput;
 
 	public ServerParser(String inputSentence){
 		parse(inputSentence);
@@ -33,18 +55,17 @@ public class ServerParser {
 	public void parse(String inputSentence){
 		String input = inputSentence.toLowerCase();
 		String[] tokens = input.split(" ");
-		if(tokens.length == 5){
-			client = tokens[0];
-			command = tokens[1].toUpperCase();
+		if(tokens.length == 4){
+			command = tokens[0].toUpperCase();
 			//Split the uri in the main domain name and the rest
-			String[] tokensUri = tokens[2].split("/", 2);
+			String[] tokensUri = tokens[1].split("/", 2);
 			uri1 = tokensUri[0];
 			//If the inputSentence only has a main domain name as URI, uri2 will be empty
 			if(tokensUri.length == 2){
 				uri2 = tokensUri[1];
 			}
-			port = Integer.parseInt(tokens[3]);
-			hTTPVersion = Double.parseDouble(tokens[4]);		
+			port = Integer.parseInt(tokens[2]);
+			hTTPVersion = Double.parseDouble(tokens[3]);		
 			this.commandParse();
 		}
 		else{
@@ -56,7 +77,7 @@ public class ServerParser {
 
 	public void commandParse(){
 		if(command.equals("GET") || command.equals("HEAD")){
-			this.getHTML();
+			//this.getHTML();
 		}
 		//			else if(command.equals("get")){
 		////				byte[] encoded;
@@ -69,13 +90,32 @@ public class ServerParser {
 		////					e.printStackTrace();
 		////				}
 		//			}
-		else if(command.equals("put")){
+		else if(command.equals("PUT") || command.equals("POST")){
+				put = true;
+				this.putInput = command + " " + uri1 + uri2 + " HTTP/" + hTTPVersion + "\n" 
+						+ "From: localhost" + "\n" +
+						"User-Agent: HTTPTool/" + hTTPVersion + "\n" +
+						"Content-Type: Text" + "\n" +
+						"Content-Length:" +"\n" +
+						"\n" 
+						
+						;
+				
+		}
 
 		}
-		else if(command.equals("post")){
+	
+	public boolean getPut(){
+		return this.put;
+	}
+	
+	public String getCommand(){
+		return this.command;
+	}
 
-		}
-
+	public String makePut(){
+//		if(command.equals("Put"))
+		return "";
 	}
 
 	public void getHTML(){
