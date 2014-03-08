@@ -23,13 +23,14 @@ public class ServerHandler implements Runnable {
 	public void run() {
 		try{
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
-			DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 
 			while(true){
 
 
 
 				System.out.println("1");
+
+				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 				String clientSentence = inFromClient.readLine(); 
 				if(this.put==true){
 					System.out.println("2");
@@ -44,16 +45,16 @@ public class ServerHandler implements Runnable {
 						System.out.println("4");
 					}
 					else if(this.parser.getCommand().equals("GET") || this.parser.getCommand().equals("HEAD")){
-						getHTML();
+						clientSentence = getHTML();
 						System.out.println("5");
 					}
 				}
 				System.out.println("6");
-				System.out.println("Received: " + clientSentence); 
-				String capsSentence = clientSentence.toUpperCase(); 
-				System.out.println(capsSentence);
-				outToClient.writeBytes("hi");
-				outToClient.flush();
+				//System.out.println("Received: " + clientSentence); 
+				//String capsSentence = clientSentence.toUpperCase(); 
+				//System.out.println(capsSentence);
+				outToClient.writeBytes(clientSentence);
+				outToClient.close();
 				System.out.println("7");}}
 		catch(IOException ex){
 
@@ -77,7 +78,9 @@ public class ServerHandler implements Runnable {
 		}
 	}
 
-	public void getHTML(){
+	public String getHTML(){
+
+		String page = "";
 		try {
 			Socket socket = new Socket(this.parser.getUri1(),this.parser.getPort());
 			//			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
@@ -91,14 +94,16 @@ public class ServerHandler implements Runnable {
 			//Extra toegevoegd: readline leest enkel eerste zin van document --> while lus
 			String line;
 			while ((line = inFromServer.readLine()) != null) {
-				System.out.println(line);
+				page += line + "\n"; 
 			}
+			System.out.println(page);
 			socket.close();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return page;
 	}
 
 }
