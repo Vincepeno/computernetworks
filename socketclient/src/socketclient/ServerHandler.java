@@ -28,9 +28,10 @@ public class ServerHandler implements Runnable {
 
 
 
-				System.out.println("1");
+				
 
 				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
+				System.out.println("1");
 				String clientSentence = inFromClient.readLine(); 
 				if(this.put==true){
 					System.out.println("2");
@@ -53,8 +54,10 @@ public class ServerHandler implements Runnable {
 				//System.out.println("Received: " + clientSentence); 
 				//String capsSentence = clientSentence.toUpperCase(); 
 				//System.out.println(capsSentence);
+				clientSentence = clientSentence  +  "EOS";
+				System.out.println(clientSentence);
 				outToClient.writeBytes(clientSentence);
-				outToClient.close();
+				outToClient.flush();
 				System.out.println("7");}}
 		catch(IOException ex){
 

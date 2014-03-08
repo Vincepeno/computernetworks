@@ -8,13 +8,15 @@ class Client
 	public static void main(String argv[]) throws Exception 
 	{ 
 		Socket clientSocket = new Socket("localhost", 6789); 
+		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+
+		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
 		while(true){
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in)); 
 			
 
-		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+	
 		System.out.println("1");
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
 			System.out.println("2");
 			String sentence = inFromUser.readLine();
 			System.out.println("3");
@@ -30,7 +32,7 @@ class Client
 			outToServer.writeBytes(sentence + '\n'); 
 			System.out.println("4");
 			String modifiedSentence;
-			while((modifiedSentence = inFromServer.readLine()) != null){
+			while(!(modifiedSentence = inFromServer.readLine()).equals("EOS")){
 				System.out.println("FROM SERVER: " + modifiedSentence ); 
 			}
 			System.out.println("5");
