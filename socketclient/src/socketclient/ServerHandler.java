@@ -22,20 +22,17 @@ public class ServerHandler implements Runnable {
 	@Override
 	public void run() {
 		try{
-			BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
 
 			while(true){
 
-
-
-				
-
+				BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
 				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 				System.out.println("1");
 				String clientSentence = inFromClient.readLine(); 
 				if(this.put==true){
 					System.out.println("2");
 					this.put=false;
+					clientSentence = this.parser.getPutInput() + clientSentence  + "\n" + "\n"  +"endofPut";
 					System.out.println(this.parser.getPutInput() + clientSentence  + "\n" + "\n"  +"endofPut");
 				}
 				else{
@@ -45,19 +42,12 @@ public class ServerHandler implements Runnable {
 						this.put=true;
 						System.out.println("4");
 					}
-					else if(this.parser.getCommand().equals("GET") || this.parser.getCommand().equals("HEAD")){
-						clientSentence = getHTML();
-						System.out.println("5");
-					}
 				}
 				System.out.println("6");
 				//System.out.println("Received: " + clientSentence); 
 				//String capsSentence = clientSentence.toUpperCase(); 
 				//System.out.println(capsSentence);
-				clientSentence = clientSentence  +  "EOS";
-				System.out.println(clientSentence);
 				outToClient.writeBytes(clientSentence);
-				outToClient.flush();
 				System.out.println("7");}}
 		catch(IOException ex){
 
@@ -81,32 +71,6 @@ public class ServerHandler implements Runnable {
 		}
 	}
 
-	public String getHTML(){
 
-		String page = "";
-		try {
-			Socket socket = new Socket(this.parser.getUri1(),this.parser.getPort());
-			//			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
-			//			//outToServer.writeUTF("GET /index.html HTTP/1.0"+"\n"+"host: www.example.com"+"\n"+"");
-			PrintWriter pw = new PrintWriter(socket.getOutputStream());
-			pw.println(this.parser.getCommand()+ " /" + this.parser.getUri2() + " HTTP/" + this.parser.gethTTPVersion()); //"GET / HTTP/1.0";
-			pw.println("host: " + this.parser.getUri1());
-			pw.println();
-			pw.flush();
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			//Extra toegevoegd: readline leest enkel eerste zin van document --> while lus
-			String line;
-			while ((line = inFromServer.readLine()) != null) {
-				page += line + "\n"; 
-			}
-			System.out.println(page);
-			socket.close();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return page;
-	}
 
 }

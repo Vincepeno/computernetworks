@@ -142,15 +142,15 @@ public class ServerParser {
 		}
 	}
 
-	//	public void parseHTTPType(String type){
-	//		if(type.contains("1.0"))
-	//			HTTPVersion=1.0;
-	//		else if(type.contains("1.1"))
-	//			HTTPVersion=1.1;
-	//		else{
-	//			System.out.println("The type is not applicable");
-	//		}
-//}
+		public void parseHTTPType(String type){
+			if(type.contains("1.0"))
+				this.hTTPVersion=1.0;
+			else if(type.contains("1.1"))
+				this.hTTPVersion=1.1;
+			else{
+				System.out.println("The type is not applicable");
+			}
+}
 
 
 }
