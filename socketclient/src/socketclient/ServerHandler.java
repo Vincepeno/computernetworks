@@ -55,6 +55,7 @@ public class ServerHandler implements Runnable {
 
 
 			connectionSocket.close();
+			System.out.println("The End :(");
 		}
 		catch(Exception ex){
 
