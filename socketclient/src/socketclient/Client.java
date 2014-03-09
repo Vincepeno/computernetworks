@@ -29,8 +29,9 @@ class Client
 				String content = inFromUser.readLine();
 				System.out.println("10");
 				outToServer.writeBytes(content + '\n'); 
+				outToServer.flush();
 				String modifiedSentence;
-				while((modifiedSentence = inFromServer.readLine()) != null){
+				while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
 					System.out.println("FROM SERVER: " + modifiedSentence ); 
 				}
 			}
@@ -38,6 +39,7 @@ class Client
 				String webpage = getHTML(parser);
 				System.out.println(webpage);
 			}
+			outToServer.flush();
 //			System.out.println("Client:" + sentence);
 //			outToServer.writeBytes(sentence + '\n'); 
 //			System.out.println("4");

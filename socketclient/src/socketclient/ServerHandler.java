@@ -23,17 +23,18 @@ public class ServerHandler implements Runnable {
 	public void run() {
 		try{
 
-			while(true){
 
-				BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
-				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
+			BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
+			DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
+
+			String clientSentence;
+			while((clientSentence = inFromClient.readLine()) != null){
 				System.out.println("1");
-				String clientSentence = inFromClient.readLine(); 
 				if(this.put==true){
 					System.out.println("2");
 					this.put=false;
-					clientSentence = this.parser.getPutInput() + clientSentence  + "\n" + "\n"  +"endofPut";
-					System.out.println(this.parser.getPutInput() + clientSentence  + "\n" + "\n"  +"endofPut");
+					clientSentence = this.parser.getPutInput() + clientSentence  + "\n" + "\n"  +"EOS" +"\n";
+					outToClient.writeBytes(clientSentence);
 				}
 				else{
 					System.out.println("3");
@@ -47,13 +48,19 @@ public class ServerHandler implements Runnable {
 				//System.out.println("Received: " + clientSentence); 
 				//String capsSentence = clientSentence.toUpperCase(); 
 				//System.out.println(capsSentence);
-				outToClient.writeBytes(clientSentence);
-				System.out.println("7");}}
-		catch(IOException ex){
 
+				outToClient.flush();
+				System.out.println("7");
+				}
+
+
+			connectionSocket.close();
 		}
+		catch(Exception ex){
 
-	}
+
+
+		}}
 
 
 	public void saveString(String input){

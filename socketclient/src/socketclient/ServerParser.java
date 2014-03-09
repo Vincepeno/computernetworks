@@ -97,13 +97,22 @@ public class ServerParser {
 						"User-Agent: HTTPTool/" + hTTPVersion + "\n" +
 						"Content-Type: Text" + "\n" +
 						"Content-Length:" +"\n" +
-						"\n" 
+						"\n"
 						
 						;
 				
 		}
 
 		}
+	
+	public String completePut(String sentence){
+		return command + " " + uri1 + uri2 + " HTTP/" + hTTPVersion + "\n" 
+				+ "From: localhost" + "\n" +
+				"User-Agent: HTTPTool/" + hTTPVersion + "\n" +
+				"Content-Type: Text" + "\n" +
+				"Content-Length:" +"\n" +
+				"\n"  +sentence + "\n"   +"EOS" + "\n";
+	}
 	
 	public boolean getPut(){
 		return this.put;
