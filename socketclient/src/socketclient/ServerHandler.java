@@ -3,12 +3,12 @@ package socketclient;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class ServerHandler implements Runnable {
 	Socket connectionSocket;
@@ -22,8 +22,8 @@ public class ServerHandler implements Runnable {
 	@Override
 	public void run() {
 		try{
-
-
+			System.out.println("page");
+			getLocalPage();
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
 			DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 
@@ -42,6 +42,9 @@ public class ServerHandler implements Runnable {
 					if(parser.getPut()==true){
 						this.put=true;
 						System.out.println("4");
+					}
+					else{
+						//outToClient.writeBytes(getLocalPage());
 					}
 				}
 				System.out.println("6");
@@ -77,6 +80,28 @@ public class ServerHandler implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void getLocalPage(){
+		String path = this.parser.getUri1() + this.parser.getUri2();
+
+		StringBuilder content=new StringBuilder(1024);
+		FileReader fr;
+		try {
+			fr = new FileReader("C:/Users/Vince/Desktop/a.html");
+
+			BufferedReader br= new BufferedReader(fr);
+			String s;
+			while((s=br.readLine())!=null)
+			    {
+			    content.append(s);
+			    } 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(content);
+		
 	}
 
 
