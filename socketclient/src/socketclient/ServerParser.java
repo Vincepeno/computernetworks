@@ -44,6 +44,7 @@ public class ServerParser {
 	private double hTTPVersion;
 	private boolean put=false;
 	private String putInput;
+	private String uri;
 
 	public ServerParser(String inputSentence){
 		parse(inputSentence);
@@ -52,13 +53,13 @@ public class ServerParser {
 	/*
 	 * Split the input from the commandline into the different arguments.
 	 */
-	public void parse(String inputSentence){
-		String input = inputSentence.toLowerCase();
+	public void parse(String input){
 		String[] tokens = input.split(" ");
 		if(tokens.length == 4){
 			command = tokens[0].toUpperCase();
 			//Split the uri in the main domain name and the rest
 			String[] tokensUri = tokens[1].split("/", 2);
+			uri = tokens[1];
 			uri1 = tokensUri[0];
 			//If the inputSentence only has a main domain name as URI, uri2 will be empty
 			if(tokensUri.length == 2){
@@ -70,7 +71,11 @@ public class ServerParser {
 		}
 		else{
 			System.out.println("Wrong input in commandline.");
+			System.out.println(tokens.length);
 		}
+	}
+	public String getUri(){
+		return this.uri;
 	}
 	
 
@@ -92,14 +97,14 @@ public class ServerParser {
 		//			}
 		else if(command.equals("PUT") || command.equals("POST")){
 				put = true;
-				this.putInput = command + " " + uri1 + uri2 + " HTTP/" + hTTPVersion + "\n" 
-						+ "From: localhost" + "\n" +
-						"User-Agent: HTTPTool/" + hTTPVersion + "\n" +
-						"Content-Type: Text" + "\n" +
-						"Content-Length:" +"\n" +
-						"\n"
-						
-						;
+//				this.putInput = command + " " + uri1 + uri2 + " HTTP/" + hTTPVersion + "\n" 
+//						+ "From: localhost" + "\n" +
+//						"User-Agent: HTTPTool/" + hTTPVersion + "\n" +
+//						"Content-Type: Text" + "\n" +
+//						"Content-Length:" +"\n" +
+//						"\n"
+//						
+//						;
 				
 		}
 
@@ -110,8 +115,8 @@ public class ServerParser {
 				+ "From: localhost" + "\n" +
 				"User-Agent: HTTPTool/" + hTTPVersion + "\n" +
 				"Content-Type: Text" + "\n" +
-				"Content-Length:" +"\n" +
-				"\n"  +sentence + "\n"   +"EOS" + "\n";
+				"Content-Length: " + sentence.length()+"\n" +
+				"\n"  +sentence + "\n"+ "\n"   +"EOS" + "\n";
 	}
 	
 	public boolean getPut(){
@@ -125,30 +130,6 @@ public class ServerParser {
 	public String makePut(){
 //		if(command.equals("Put"))
 		return "";
-	}
-
-	public void getHTML(){
-		try {
-			Socket socket = new Socket(uri1,port);
-			//			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream()); 
-			//			//outToServer.writeUTF("GET /index.html HTTP/1.0"+"\n"+"host: www.example.com"+"\n"+"");
-			PrintWriter pw = new PrintWriter(socket.getOutputStream());
-			pw.println(command + " /" + uri2 + " HTTP/" + hTTPVersion); //"GET / HTTP/1.0";
-			pw.println("host: " + uri1);
-			pw.println();
-			pw.flush();
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			//Extra toegevoegd: readline leest enkel eerste zin van document --> while lus
-			String line;
-			while ((line = inFromServer.readLine()) != null) {
-				System.out.println(line);
-			}
-			socket.close();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 		public void parseHTTPType(String type){

@@ -22,8 +22,6 @@ public class ServerHandler implements Runnable {
 	@Override
 	public void run() {
 		try{
-			System.out.println("page");
-			getLocalPage();
 			BufferedReader inFromClient = new BufferedReader(new InputStreamReader (connectionSocket.getInputStream())); 
 			DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 
@@ -33,8 +31,8 @@ public class ServerHandler implements Runnable {
 				if(this.put==true){
 					System.out.println("2");
 					this.put=false;
-					clientSentence = this.parser.getPutInput() + clientSentence  + "\n" + "\n"  +"EOS" +"\n";
-					outToClient.writeBytes(clientSentence);
+					clientSentence = this.parser.completePut(clientSentence);
+					saveString(clientSentence);
 				}
 				else{
 					System.out.println("3");
@@ -44,7 +42,7 @@ public class ServerHandler implements Runnable {
 						System.out.println("4");
 					}
 					else{
-						//outToClient.writeBytes(getLocalPage());
+						outToClient.writeBytes(readFile(this.parser.getUri()) + "\n" + "EOS");
 					}
 				}
 				System.out.println("6");
@@ -68,9 +66,11 @@ public class ServerHandler implements Runnable {
 
 
 	public void saveString(String input){
-		String[] tokens = input.split(" ");
-		String path= tokens[1];
-		File newTextFile = new File(path);
+//		C:/Users/Vince/Desktop/b.html
+//		String[] tokens = input.split(" ");
+//		String path= tokens[1];
+		System.out.println(parser.getUri());
+		File newTextFile = new File(parser.getUri());
 		FileWriter fileWriter;
 		try {
 			fileWriter = new FileWriter(newTextFile);
@@ -82,27 +82,23 @@ public class ServerHandler implements Runnable {
 		}
 	}
 	
-	public void getLocalPage(){
-		String path = this.parser.getUri1() + this.parser.getUri2();
+	
+	
+	private String readFile(String uri) throws IOException {
+	    BufferedReader reader = new BufferedReader( new FileReader (uri));
+	    String         line = null;
+	    StringBuilder  stringBuilder = new StringBuilder();
+	    String         ls = System.getProperty("line.separator");
 
-		StringBuilder content=new StringBuilder(1024);
-		FileReader fr;
-		try {
-			fr = new FileReader("C:/Users/Vince/Desktop/a.html");
+	    while( ( line = reader.readLine() ) != null ) {
+	        stringBuilder.append( line );
+	        stringBuilder.append( ls );
+	    }
 
-			BufferedReader br= new BufferedReader(fr);
-			String s;
-			while((s=br.readLine())!=null)
-			    {
-			    content.append(s);
-			    } 
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(content);
-		
+	    return stringBuilder.toString();
 	}
+	
+	//private void saveFile
 
 
 

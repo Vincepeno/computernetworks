@@ -14,13 +14,13 @@ class Client
 	public Client() throws Exception 
 	{ 
 		Socket clientSocket = new Socket("localhost", 6789); 
+		showIntro();
 		while(HTTP11==1.1){
 
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));  
 			System.out.println("1");
-			System.out.println("2");
 			String sentence = inFromUser.readLine();
 			System.out.println("3");
 			ServerParser parser = new ServerParser(sentence);
@@ -32,20 +32,27 @@ class Client
 				System.out.println("10");
 				outToServer.writeBytes(content + '\n'); 
 				outToServer.flush();
-				String modifiedSentence;
-				while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
-					System.out.println("FROM SERVER: " + modifiedSentence ); 
-				}
+
 			}
 			else if (parser.getCommand().equals("GET") || parser.getCommand().equals("HEAD")){
-				String webpage = getHTML(parser);
-				System.out.println(webpage);
-				System.out.println("The page contains " + imageUrls.size() + " image(s).");
-				this.saveImage(parser);		
-				System.out.println("All images are saved.");
+				if(getLocalGet(parser.getUri())){
+					outToServer.writeBytes(sentence + '\n');
+					String modifiedSentence;
+					while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
+						System.out.println("FROM SERVER: " + modifiedSentence ); 
+					}
+				}
+				else{
+					String webpage = getHTML(parser);
+					System.out.println(webpage);
+					System.out.println("The page contains " + imageUrls.size() + " image(s).");
+					this.saveImage(parser);		
+					System.out.println("All images are saved.");
+				}
 
 
 			}
+			
 			outToServer.flush();
 			//			System.out.println("Client:" + sentence);
 			//			outToServer.writeBytes(sentence + '\n'); 
@@ -110,7 +117,7 @@ class Client
 		}
 
 	}
-	
+
 	/**
 	 * Retrieve the requested HTML-code.
 	 */
@@ -153,5 +160,19 @@ class Client
 			e.printStackTrace();
 		}
 		return page;
+	}
+
+	private void showIntro(){
+		System.out.println("Welcome to our client-serverpgrogram");
+		System.out.println("All input commando's require 4 fields seperated by a space");
+		System.out.println("The input data requires only the text");
+		System.out.println("We're happy to forfill your first command:");
+	}
+
+	private boolean getLocalGet(String uri){
+		if(uri.contains("C:") || uri.contains("D:")){
+			return true;
+		}
+		return false;
 	}
 }
