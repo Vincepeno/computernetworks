@@ -92,8 +92,8 @@ public class ServerHandler implements Runnable {
 	}
 	
 	private String putParse(String input){
-		System.out.println(input);
-		String[] tokens = input.split(" ");
+		System.out.println("putParseinput:" +input);
+		String[] tokens = input.split("\n");
 		int p= 0;
 		String toReturn="";
 		boolean execute=false;
@@ -101,8 +101,8 @@ public class ServerHandler implements Runnable {
 		System.out.println("tokens:" +tokens.length);
 		for(int i=0; i< tokens.length; i++){
 		if(execute && i+2<tokens.length){
-			 toReturn+= tokens[i+2] + "\n";
-			 System.out.println(tokens[i+2]);
+			 toReturn+= tokens[i+1] + "\n";
+			 System.out.println(tokens[i+1]);
 			 System.out.println("i:" +i);
 		}
 		System.out.println("ii:" +i);
