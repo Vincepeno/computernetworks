@@ -3,12 +3,13 @@ package socketclient;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ServerHandler implements Runnable {
 	Socket connectionSocket;
@@ -51,7 +52,7 @@ public class ServerHandler implements Runnable {
 					}
 					else{
 						try{
-						outToClient.writeBytes("200 OK" + "\n" + readFile(this.parser.getUri()) + "\n" + "EOS"+"\n");
+						outToClient.writeBytes(makeGet(readFile(this.parser.getUri())));
 						System.out.println("5");
 						}
 						catch(IOException i){
@@ -115,6 +116,14 @@ public class ServerHandler implements Runnable {
 		}
 		System.out.println("toReturn:" +toReturn);
 		return toReturn;
+	}
+	
+	private String makeGet(String content){
+		return "HTTP/"+this.parser.gethTTPVersion()+ " 200 OK"+ "\n" +
+				"Date: " + new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z").format(new Date()) + "\n" +
+				"Content-Type: text/html" + "\n" + 
+				"Content-Length: " + content.length() + "\n" + "\n" 
+				+content  + "EOS"+"\n" ;
 	}
 	
 	
