@@ -32,6 +32,10 @@ class Client
 				System.out.println("10");
 				outToServer.writeBytes(content + '\n'); 
 				outToServer.flush();
+				String modifiedSentence;
+				while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
+					System.out.println("FROM SERVER: " + modifiedSentence ); 
+				}
 
 			}
 			else if (parser.getCommand().equals("GET") || parser.getCommand().equals("HEAD")){
@@ -56,7 +60,7 @@ class Client
 			outToServer.flush();
 			//			System.out.println("Client:" + sentence);
 			//			outToServer.writeBytes(sentence + '\n'); 
-			//			System.out.println("4");
+					System.out.println("4");
 			//			System.out.println("5");
 		}
 		clientSocket.close(); 

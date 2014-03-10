@@ -29,10 +29,17 @@ public class ServerHandler implements Runnable {
 			while((clientSentence = inFromClient.readLine()) != null){
 				System.out.println("1");
 				if(this.put==true){
+					try{
 					System.out.println("2");
 					this.put=false;
 					clientSentence = this.parser.completePut(clientSentence);
 					saveString(clientSentence);
+					}
+					catch(IOException i){
+						outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 500 Server Error"  + "\n" + "EOS"+"\n");
+					}
+					System.out.println();
+					outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 200 OK" + "\n" +  "EOS"+ "\n");
 				}
 				else{
 					System.out.println("3");
@@ -40,9 +47,17 @@ public class ServerHandler implements Runnable {
 					if(parser.getPut()==true){
 						this.put=true;
 						System.out.println("4");
+						
 					}
 					else{
-						outToClient.writeBytes(readFile(this.parser.getUri()) + "\n" + "EOS");
+						try{
+						outToClient.writeBytes("200 OK" + "\n" + readFile(this.parser.getUri()) + "\n" + "EOS"+"\n");
+						System.out.println("5");
+						}
+						catch(IOException i){
+							outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 404 NOT FOUND" + "\n" + "EOS"+"\n");
+							System.out.println(" HTTP/" + this.parser.gethTTPVersion() + " 404 NOT FOUND" + "\n" + "EOS" +"\n");
+						}
 					}
 				}
 				System.out.println("6");
@@ -65,21 +80,41 @@ public class ServerHandler implements Runnable {
 		}}
 
 
-	public void saveString(String input){
+	public void saveString(String input) throws IOException{
 //		C:/Users/Vince/Desktop/b.html
-//		String[] tokens = input.split(" ");
-//		String path= tokens[1];
-		System.out.println(parser.getUri());
 		File newTextFile = new File(parser.getUri());
 		FileWriter fileWriter;
-		try {
 			fileWriter = new FileWriter(newTextFile);
-			fileWriter.write(input);
+			fileWriter.write(putParse(input));
 			fileWriter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("saveString succeeded");
+		
+	}
+	
+	private String putParse(String input){
+		System.out.println(input);
+		String[] tokens = input.split(" ");
+		int p= 0;
+		String toReturn="";
+		boolean execute=false;
+
+		System.out.println("tokens:" +tokens.length);
+		for(int i=0; i< tokens.length; i++){
+		if(execute && i+2<tokens.length){
+			 toReturn+= tokens[i+2] + "\n";
+			 System.out.println(tokens[i+2]);
+			 System.out.println("i:" +i);
 		}
+		System.out.println("ii:" +i);
+		System.out.println("Execute:" + execute);
+		System.out.println(tokens[i]);
+		if(tokens[i].contains("Content-Length:")){
+			execute=true;
+		}
+		
+		}
+		System.out.println("toReturn:" +toReturn);
+		return toReturn;
 	}
 	
 	
