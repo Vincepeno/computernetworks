@@ -92,8 +92,14 @@ class Client
 				//Create a GET-request for the imageUrl. 
 				Socket socket = new Socket(uri1,80);
 				PrintWriter pw = new PrintWriter(socket.getOutputStream());
-				pw.println("GET" + " /" + uri2 + " HTTP/1.0");
+//				pw.println("GET" + " /" + uri2 + " HTTP/1.0");
+//				pw.println("host: " + uri1);
+//				pw.println();
+//				pw.flush();
+				pw.println("GET" +  " /" + uri2 + " HTTP/" + parser.gethTTPVersion());
 				pw.println("host: " + uri1);
+				pw.println("From: user@student.kuleuven.be");
+				pw.println("User-Agent: HTTPTool/" + parser.gethTTPVersion());
 				pw.println();
 				pw.flush();
 				BufferedReader inFromServer1 = new BufferedReader(new InputStreamReader(socket.getInputStream()));
