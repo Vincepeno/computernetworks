@@ -27,21 +27,33 @@ class Client
 			HTTP11 = parser.gethTTPVersion();
 			if(parser.getPut() == true){
 				outToServer.writeBytes(sentence + '\n'); 
-				System.out.println("FROM SERVER: Specify the content:");
+				String modifiedSentence=null;
+				boolean error=false;
+				while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
+					System.out.println("FROM SERVER: " + modifiedSentence ); 
+					if(modifiedSentence.contains("500")){
+						error=true;
+					}
+				}
+				
+				
+				if(!error){
+					System.out.println("waiting");
 				String content = inFromUser.readLine();
 				System.out.println("10");
 				outToServer.writeBytes(content + '\n'); 
 				outToServer.flush();
-				String modifiedSentence;
-				while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
-					System.out.println("FROM SERVER: " + modifiedSentence ); 
+				String modifiedSentences=null;
+				while(!(modifiedSentences = inFromServer.readLine()).contains("EOS")){
+					System.out.println("FROM SERVER: " + modifiedSentences ); 
+				}
 				}
 
 			}
 			else if (parser.getCommand().equals("GET") || parser.getCommand().equals("HEAD")){
 				if(getLocalGet(parser.getUri())){
 					outToServer.writeBytes(sentence + '\n');
-					String modifiedSentence;
+					String modifiedSentence=null;
 					while(!(modifiedSentence = inFromServer.readLine()).contains("EOS")){
 						System.out.println("FROM SERVER: " + modifiedSentence ); 
 					}

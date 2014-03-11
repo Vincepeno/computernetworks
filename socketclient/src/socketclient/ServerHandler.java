@@ -8,6 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -46,19 +49,35 @@ public class ServerHandler implements Runnable {
 					System.out.println("3");
 					this.parser = new ServerParser(clientSentence);
 					if(parser.getPut()==true){
-						this.put=true;
 						System.out.println("4");
+						System.out.println(this.parser.getUri1());
+						if(isDirectory(parser.getUri())){
+							this.put=true;
+						    outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 200 OK"  + "\n" + 
+						    							"Specify your content:" + "\n" + "EOS"+"\n");
+						}
+						else
+							outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 500 Server Error"  + "\n" + "EOS"+"\n");
 						
 					}
-					else{
+					else if(this.parser.getCommand().equals("GET")){
 						try{
 						outToClient.writeBytes(makeGet(readFile(this.parser.getUri())));
 						System.out.println("5");
 						}
 						catch(IOException i){
 							outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 404 NOT FOUND" + "\n" + "EOS"+"\n");
-							System.out.println(" HTTP/" + this.parser.gethTTPVersion() + " 404 NOT FOUND" + "\n" + "EOS" +"\n");
 						}
+					}
+					else{
+						try{
+							outToClient.writeBytes(makeHead(readFile(this.parser.getUri())) + "\n" + "EOS" + "\n");
+							System.out.println("5");
+							}
+							catch(IOException i){
+								outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 404 NOT FOUND" + "\n" + "EOS"+"\n");
+							}
+						
 					}
 				}
 				System.out.println("6");
@@ -93,37 +112,42 @@ public class ServerHandler implements Runnable {
 	}
 	
 	private String putParse(String input){
-		System.out.println("putParseinput:" +input);
 		String[] tokens = input.split("\n");
 		int p= 0;
 		String toReturn="";
 		boolean execute=false;
-
-		System.out.println("tokens:" +tokens.length);
 		for(int i=0; i< tokens.length; i++){
 		if(execute && i+2<tokens.length){
 			 toReturn+= tokens[i+1] + "\n";
-			 System.out.println(tokens[i+1]);
-			 System.out.println("i:" +i);
 		}
-		System.out.println("ii:" +i);
-		System.out.println("Execute:" + execute);
-		System.out.println(tokens[i]);
 		if(tokens[i].contains("Content-Length:")){
 			execute=true;
 		}
-		
 		}
-		System.out.println("toReturn:" +toReturn);
 		return toReturn;
 	}
 	
 	private String makeGet(String content){
+		return  makeHead(content)+ "\n" + "\n" 
+				+content  + "EOS"+"\n" ;
+	}
+	private String makeHead(String content){
 		return "HTTP/"+this.parser.gethTTPVersion()+ " 200 OK"+ "\n" +
 				"Date: " + new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z").format(new Date()) + "\n" +
 				"Content-Type: text/html" + "\n" + 
-				"Content-Length: " + content.length() + "\n" + "\n" 
-				+content  + "EOS"+"\n" ;
+				"Content-Length: " + content.length();
+	}
+	
+	private boolean isDirectory(String uri){
+		String[] tokens = uri.split("/");
+				String directory="";
+		for(int i =0; i<tokens.length -1; i++){
+			directory+=tokens[i] +"/";
+		}
+		if(tokens.length==1 && !tokens.equals("C:"))
+			return false;
+		Path path = Paths.get(directory);
+		return Files.isDirectory(path);
 	}
 	
 	
