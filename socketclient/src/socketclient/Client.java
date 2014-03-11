@@ -16,7 +16,7 @@ class Client
 		Socket clientSocket = new Socket("localhost", 6789); 
 		showIntro();
 		while(HTTP11==1.1){
-
+			System.out.println("We're happy to forfill your command:");
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));  
@@ -188,7 +188,6 @@ class Client
 		System.out.println("Welcome to our client-serverpgrogram");
 		System.out.println("All input commando's require 4 fields seperated by a space");
 		System.out.println("The input data requires only the text");
-		System.out.println("We're happy to forfill your first command:");
 	}
 
 	private boolean getLocalGet(String uri){

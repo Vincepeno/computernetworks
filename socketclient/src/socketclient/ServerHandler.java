@@ -50,7 +50,6 @@ public class ServerHandler implements Runnable {
 					this.parser = new ServerParser(clientSentence);
 					if(parser.getPut()==true){
 						System.out.println("4");
-						System.out.println(this.parser.getUri1());
 						if(isDirectory(parser.getUri())){
 							this.put=true;
 						    outToClient.writeBytes(" HTTP/" + this.parser.gethTTPVersion() + " 200 OK"  + "\n" + 
@@ -139,11 +138,17 @@ public class ServerHandler implements Runnable {
 	}
 	
 	private boolean isDirectory(String uri){
-		String[] tokens = uri.split("/");
+		System.out.println(uri);
+
+		System.out.println("hre");
+		String         ls = System.getProperty("line.separator");
+		System.out.println(ls);
+		String[] tokens = uri.split(ls);
 				String directory="";
 		for(int i =0; i<tokens.length -1; i++){
-			directory+=tokens[i] +"/";
+			directory+=tokens[i] +ls;
 		}
+		System.out.println(directory);
 		if(tokens.length==1 && !tokens.equals("C:"))
 			return false;
 		Path path = Paths.get(directory);
