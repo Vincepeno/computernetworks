@@ -29,8 +29,6 @@ class Client
 
 		while(HTTP11==1.1){
 			System.out.println("We're happy to forfill your command:");
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));  
 			System.out.println("1");
 
@@ -39,6 +37,11 @@ class Client
 				System.out.println("3");
 				parser = new ServerParser(sentence);
 			}
+			if(getLocalGet(parser.getUri())){
+				clientSocket = new Socket("localhost",80);
+			}
+			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			HTTP11 = parser.gethTTPVersion();
 			if(parser.getPut() == true){
 				outToServer.writeBytes(sentence + '\n'); 
@@ -53,7 +56,6 @@ class Client
 
 
 				if(!error){
-					System.out.println("waiting");
 					String content = inFromUser.readLine();
 					System.out.println("10");
 					outToServer.writeBytes(content + '\n'); 
@@ -75,7 +77,7 @@ class Client
 				}
 				else{
 					String webpage = getHTML(parser);
-					System.out.println("webpage:" +webpage);
+					System.out.println(webpage);
 					System.out.println("The page contains " + imageUrls.size() + " image(s).");
 					this.saveImage(parser);		
 					System.out.println("All images are saved.");
@@ -85,10 +87,7 @@ class Client
 			}
 			start=false;
 			outToServer.flush();
-			//						System.out.println("Client:" + sentence);
-			//						outToServer.writeBytes(sentence + '\n'); 
 			System.out.println("4");
-			System.out.println("5");
 		}
 		clientSocket.close(); 
 

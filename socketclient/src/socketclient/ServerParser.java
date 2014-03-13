@@ -54,25 +54,27 @@ public class ServerParser {
 	 * Split the input from the commandline into the different arguments.
 	 */
 	public void parse(String input){
-		String[] tokens = input.split(" ");
 
-		System.out.println("command" +tokens[0]);
+		parseHTTPType(input);
+		String[] tokens = input.split(" ");
 		if(tokens.length==3 || tokens.length==4){
 			command = tokens[0].toUpperCase();
 			//Split the uri in the main domain name and the rest
 			String[] tokensUri = tokens[1].split("/", 2);
+			
 			uri = tokens[1];
 			uri1 = tokensUri[0];
 			//If the inputSentence only has a main domain name as URI, uri2 will be empty
 			if(tokensUri.length == 2){
 				uri2 = tokensUri[1];
 			}
-		if(tokens.length == 4){
+			else if(!tokens[1].contains("/") && !tokens[1].contains("www")){
+
+				uri2=uri1;
+				uri1="";
 			port = Integer.parseInt(tokens[2]);
-			parseHTTPType(tokens[3]);
 		}
 		else{
-			parseHTTPType(input);
 			port = 80;
 		}
 		this.commandParse();
@@ -149,6 +151,13 @@ public class ServerParser {
 				System.out.println("The type is not applicable");
 			}
 }
+   public void setLocalUri(){
+	   this.uri1= "src/files/";
+	   if(uri2.equals("")){
+		   uri2="index.html";
+	   }
+	   this.uri=uri1+uri2;
+   }
 
 
 }
