@@ -18,10 +18,11 @@ class Client
 	ArrayList<String> imageUrls = new ArrayList<>();
 	boolean start=true;
 	Socket clientSocket;
+	ServerParser parser;
 	public Client(String command, String uri, String port, String version) throws Exception 
 	{ 	
 		String sentence = command + " " + uri +" " + port + " " + version;
-		ServerParser parser = new ServerParser(sentence); 
+		this.parser = new ServerParser(sentence); 
 		clientSocket = new Socket(parser.getUri1(),parser.getPort()); 
 		//aanpassen miss
 		showIntro();
@@ -39,10 +40,6 @@ class Client
 				parser = new ServerParser(sentence);
 			}
 			HTTP11 = parser.gethTTPVersion();
-
-			System.out.println("parsercommand: "+parser.getCommand());
-			System.out.println("localget: "+getLocalGet(parser.getUri()));
-			
 			if(parser.getPut() == true){
 				outToServer.writeBytes(sentence + '\n'); 
 				String modifiedSentence=null;
@@ -167,7 +164,8 @@ class Client
 		String page = "";
 
 		try {
-			//			Socket socket = new Socket(parser.getUri1(),parser.getPort());
+			
+			clientSocket = new Socket(parser.getUri1(),parser.getPort());
 			PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
 			//Send the request
 			pw.println(parser.getCommand()+ " /" + parser.getUri2() + " HTTP/" +parser.gethTTPVersion()); 

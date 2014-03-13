@@ -31,6 +31,8 @@ public class ServerHandler implements Runnable {
 
 			String clientSentence;
 			while((clientSentence = inFromClient.readLine()) != null){
+				if(clientSentence.contains("HTTP")){
+				System.out.println("clientsentence:" +clientSentence);
 				System.out.println("1");
 				if(this.put==true){
 					try{
@@ -60,8 +62,10 @@ public class ServerHandler implements Runnable {
 						
 					}
 					else if(this.parser.getCommand().equals("GET")){
+						System.out.println(this.parser.getUri());
 						try{
-						outToClient.writeBytes(makeGet(readFile(this.parser.getUri())));
+						//outToClient.writeBytes(makeGet(readFile(this.parser.getUri())));
+							outToClient.writeBytes(makeGet(readFile("/src/files/index.html")));
 						System.out.println("5");
 						}
 						catch(IOException i){
@@ -91,7 +95,7 @@ public class ServerHandler implements Runnable {
 
 			connectionSocket.close();
 			System.out.println("The End :(");
-		}
+		}}
 		catch(Exception ex){
 
 

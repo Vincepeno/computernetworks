@@ -55,7 +55,9 @@ public class ServerParser {
 	 */
 	public void parse(String input){
 		String[] tokens = input.split(" ");
-		if(tokens.length == 4){
+
+		System.out.println("command" +tokens[0]);
+		if(tokens.length==3 || tokens.length==4){
 			command = tokens[0].toUpperCase();
 			//Split the uri in the main domain name and the rest
 			String[] tokensUri = tokens[1].split("/", 2);
@@ -65,9 +67,15 @@ public class ServerParser {
 			if(tokensUri.length == 2){
 				uri2 = tokensUri[1];
 			}
+		if(tokens.length == 4){
 			port = Integer.parseInt(tokens[2]);
-			hTTPVersion = Double.parseDouble(tokens[3]);		
-			this.commandParse();
+			parseHTTPType(tokens[3]);
+		}
+		else{
+			parseHTTPType(input);
+			port = 80;
+		}
+		this.commandParse();
 		}
 		else{
 			System.out.println("Wrong input in commandline.");
