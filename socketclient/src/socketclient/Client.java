@@ -16,20 +16,33 @@ class Client
 { 
 	private double HTTP11=1.1;
 	ArrayList<String> imageUrls = new ArrayList<>();
-	public Client() throws Exception 
-	{ 
-		Socket clientSocket = new Socket("localhost", 6789); 
+	boolean start=true;
+	Socket clientSocket;
+	public Client(String command, String uri, String port, String version) throws Exception 
+	{ 	
+		String sentence = command + " " + uri +" " + port + " " + version;
+		ServerParser parser = new ServerParser(sentence); 
+		clientSocket = new Socket(parser.getUri1(),parser.getPort()); 
+		//aanpassen miss
 		showIntro();
+
 		while(HTTP11==1.1){
 			System.out.println("We're happy to forfill your command:");
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			BufferedReader inFromUser = new BufferedReader( new InputStreamReader(System.in));  
 			System.out.println("1");
-			String sentence = inFromUser.readLine();
-			System.out.println("3");
-			ServerParser parser = new ServerParser(sentence);
+
+			if(!start){
+				sentence = inFromUser.readLine();
+				System.out.println("3");
+				parser = new ServerParser(sentence);
+			}
 			HTTP11 = parser.gethTTPVersion();
+
+			System.out.println("parsercommand: "+parser.getCommand());
+			System.out.println("localget: "+getLocalGet(parser.getUri()));
+			
 			if(parser.getPut() == true){
 				outToServer.writeBytes(sentence + '\n'); 
 				String modifiedSentence=null;
@@ -65,7 +78,7 @@ class Client
 				}
 				else{
 					String webpage = getHTML(parser);
-					System.out.println(webpage);
+					System.out.println("webpage:" +webpage);
 					System.out.println("The page contains " + imageUrls.size() + " image(s).");
 					this.saveImage(parser);		
 					System.out.println("All images are saved.");
@@ -73,16 +86,17 @@ class Client
 
 
 			}
-
+			start=false;
 			outToServer.flush();
-			//			System.out.println("Client:" + sentence);
-			//			outToServer.writeBytes(sentence + '\n'); 
+			//						System.out.println("Client:" + sentence);
+			//						outToServer.writeBytes(sentence + '\n'); 
 			System.out.println("4");
-			//			System.out.println("5");
+			System.out.println("5");
 		}
 		clientSocket.close(); 
 
 	}
+
 	/*
 	 * Save the images to the disk. 
 	 */
@@ -92,23 +106,17 @@ class Client
 		//Loop through all imageUrls
 		for(int i=0; i<imageUrls.size(); i++){
 			String imageUrl = imageUrls.get(i);
-			//			//If the domain name is not in the url, we get it from the parser
-			//			if(! imageUrl.contains(".")){
-			//				imageUrl+=parser.getUri1();
-			//			}
-
 			String[] tokensUri = imageUrls.get(i).split("/", 2);
 			//If the domain name is already in the url, we split it 
 			if(!tokensUri[0].contains(".")){
 				imageUrl = parser.getUri1() + "/" + imageUrls.get(i);
 			}
-			
+
 			//Add http:// prefix
-				imageUrl = "http://" + imageUrl;
+			imageUrl = "http://" + imageUrl;
 
 			BufferedImage image = null;
 			try{
-				System.out.println(imageUrl);
 				URL url =new URL(imageUrl);
 				image = ImageIO.read(url);
 
@@ -143,71 +151,11 @@ class Client
 
 			}
 			catch(IOException e){
-				e.printStackTrace();
+				System.out.println("Image " + (i+1) + " can't be saved");
 			}
 
+
 		}
-
-
-
-
-
-
-		//		System.out.println("Saving the images...");
-		//		//Loop through all imageUrls
-		//		for(int i=0; i<imageUrls.size(); i++){
-		//			String uri1;
-		//			String uri2;
-		//			try {
-		//				String[] tokensUri = imageUrls.get(i).split("/", 2);
-		//				//If the domain name is already in the url, we split it 
-		//				if(tokensUri[0].contains(".")){
-		//					uri1 = tokensUri[0];
-		//					uri2 = tokensUri[1];
-		//				}
-		//				//If the domain name is not in the url, we get it from the parser
-		//				else{
-		//					uri1 = parser.getUri1();
-		//					uri2 = imageUrls.get(i);
-		//				}
-		//				//Make a new file to save the image
-		//				PrintWriter out = new PrintWriter("Image_" + (i+1) + ".txt");
-		//				//Create a GET-request for the imageUrl. 
-		//				Socket socket = new Socket(uri1,80);
-		//				PrintWriter pw = new PrintWriter(socket.getOutputStream());
-		////				pw.println("GET" + " /" + uri2 + " HTTP/1.0");
-		////				pw.println("host: " + uri1);
-		////				pw.println();
-		////				pw.flush();
-		//				pw.println("GET" +  " /" + uri2 + " HTTP/" + parser.gethTTPVersion());
-		//				pw.println("host: " + uri1);
-		//				pw.println("From: user@student.kuleuven.be");
-		//				pw.println("User-Agent: HTTPTool/" + parser.gethTTPVersion());
-		//				pw.println();
-		//				pw.flush();
-		//				BufferedReader inFromServer1 = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		//				String line;
-		//				//Boolean to check of the recevied Html-code already started with the real image code (not the header info)
-		//				boolean imageCodeIsStarted = false;
-		//				while ((line = inFromServer1.readLine()) != null) {
-		//					//Only save the code from the real image 
-		//					if(imageCodeIsStarted){
-		//						out.println(line);
-		//					}
-		//					if(!imageCodeIsStarted && line.isEmpty()){
-		//						imageCodeIsStarted = true;
-		//					}
-		//				}
-		//				//Close the txt file
-		//				out.close();
-		//				socket.close();
-		//				System.out.println("Image " + (i+1) + " is saved.");
-		//			} catch (UnknownHostException e) {
-		//				e.printStackTrace();
-		//			} catch (IOException e) {
-		//				e.printStackTrace();
-		//			}
-		//		}
 
 	}
 
@@ -219,14 +167,14 @@ class Client
 		String page = "";
 
 		try {
-			Socket socket = new Socket(parser.getUri1(),parser.getPort());
-			PrintWriter pw = new PrintWriter(socket.getOutputStream());
+			//			Socket socket = new Socket(parser.getUri1(),parser.getPort());
+			PrintWriter pw = new PrintWriter(clientSocket.getOutputStream());
 			//Send the request
 			pw.println(parser.getCommand()+ " /" + parser.getUri2() + " HTTP/" +parser.gethTTPVersion()); 
 			pw.println("host: " + parser.getUri1());
 			pw.println();
 			pw.flush();
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String line;
 			//Add the received HTML-code to the page-string
 			while ((line = inFromServer.readLine()) != null) {
@@ -246,7 +194,7 @@ class Client
 					imageUrls.add(imageUrl);
 				}
 			}
-			socket.close();
+			//			socket.close();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -262,9 +210,9 @@ class Client
 	}
 
 	private boolean getLocalGet(String uri){
-		if(uri.contains("C:") || uri.contains("D:")){
-			return true;
+		if(uri.contains("www")){
+			return false;
 		}
-		return false;
+		return true;
 	}
 }
