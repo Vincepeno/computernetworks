@@ -1,12 +1,17 @@
 package socketclient;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 class Client 
 { 
 	private double HTTP11=1.1;
@@ -35,18 +40,18 @@ class Client
 						error=true;
 					}
 				}
-				
-				
+
+
 				if(!error){
 					System.out.println("waiting");
-				String content = inFromUser.readLine();
-				System.out.println("10");
-				outToServer.writeBytes(content + '\n'); 
-				outToServer.flush();
-				String modifiedSentences=null;
-				while(!(modifiedSentences = inFromServer.readLine()).contains("EOS")){
-					System.out.println("FROM SERVER: " + modifiedSentences ); 
-				}
+					String content = inFromUser.readLine();
+					System.out.println("10");
+					outToServer.writeBytes(content + '\n'); 
+					outToServer.flush();
+					String modifiedSentences=null;
+					while(!(modifiedSentences = inFromServer.readLine()).contains("EOS")){
+						System.out.println("FROM SERVER: " + modifiedSentences ); 
+					}
 				}
 
 			}
@@ -68,11 +73,11 @@ class Client
 
 
 			}
-			
+
 			outToServer.flush();
 			//			System.out.println("Client:" + sentence);
 			//			outToServer.writeBytes(sentence + '\n'); 
-					System.out.println("4");
+			System.out.println("4");
 			//			System.out.println("5");
 		}
 		clientSocket.close(); 
@@ -82,61 +87,127 @@ class Client
 	 * Save the images to the disk. 
 	 */
 	private void saveImage(ServerParser parser) {
+
 		System.out.println("Saving the images...");
 		//Loop through all imageUrls
 		for(int i=0; i<imageUrls.size(); i++){
-			String uri1;
-			String uri2;
-			try {
-				String[] tokensUri = imageUrls.get(i).split("/", 2);
-				//If the domain name is already in the url, we split it 
-				if(tokensUri[0].contains(".")){
-					uri1 = tokensUri[0];
-					uri2 = tokensUri[1];
+			String imageUrl = imageUrls.get(i);
+			//			//If the domain name is not in the url, we get it from the parser
+			//			if(! imageUrl.contains(".")){
+			//				imageUrl+=parser.getUri1();
+			//			}
+
+			String[] tokensUri = imageUrls.get(i).split("/", 2);
+			//If the domain name is already in the url, we split it 
+			if(!tokensUri[0].contains(".")){
+				imageUrl = parser.getUri1() + "/" + imageUrls.get(i);
+			}
+			
+			//Add http:// prefix
+				imageUrl = "http://" + imageUrl;
+
+			BufferedImage image = null;
+			try{
+				System.out.println(imageUrl);
+				URL url =new URL(imageUrl);
+				image = ImageIO.read(url);
+
+				//Save png images
+				if(imageUrl.contains(".png")){
+					ImageIO.write(image, "png",new File("Image_" + (i+1) + ".png"));
+					System.out.println("Image " + (i+1) + " is saved.");
 				}
-				//If the domain name is not in the url, we get it from the parser
+
+				//Save jpg images
+				else if(imageUrl.contains(".jpg")){
+					ImageIO.write(image, "jpg",new File("Image_" + (i+1) + ".jpg"));
+					System.out.println("Image " + (i+1) + " is saved.");
+				}
+
+				//Save gif images
+				else if(imageUrl.contains(".gif")){
+					ImageIO.write(image, "gif",new File("Image_" + (i+1) + ".gif"));
+					System.out.println("Image " + (i+1) + " is saved.");
+				}
+
+				//Save jpeg images
+				else if(imageUrl.contains(".jpeg")){
+					ImageIO.write(image, "jpg",new File("Image_" + (i+1) + ".jpeg"));
+					System.out.println("Image " + (i+1) + " is saved.");
+				}
+
+				//Image format not recognized
 				else{
-					uri1 = parser.getUri1();
-					uri2 = imageUrls.get(i);
+					System.out.println("Image " + (i+1) + " can't be saved");
 				}
-				//Make a new file to save the image
-				PrintWriter out = new PrintWriter("Image_" + (i+1) + ".txt");
-				//Create a GET-request for the imageUrl. 
-				Socket socket = new Socket(uri1,80);
-				PrintWriter pw = new PrintWriter(socket.getOutputStream());
-//				pw.println("GET" + " /" + uri2 + " HTTP/1.0");
-//				pw.println("host: " + uri1);
-//				pw.println();
-//				pw.flush();
-				pw.println("GET" +  " /" + uri2 + " HTTP/" + parser.gethTTPVersion());
-				pw.println("host: " + uri1);
-				pw.println("From: user@student.kuleuven.be");
-				pw.println("User-Agent: HTTPTool/" + parser.gethTTPVersion());
-				pw.println();
-				pw.flush();
-				BufferedReader inFromServer1 = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				String line;
-				//Boolean to check of the recevied Html-code already started with the real image code (not the header info)
-				boolean imageCodeIsStarted = false;
-				while ((line = inFromServer1.readLine()) != null) {
-					//Only save the code from the real image 
-					if(imageCodeIsStarted){
-						out.println(line);
-					}
-					if(!imageCodeIsStarted && line.isEmpty()){
-						imageCodeIsStarted = true;
-					}
-				}
-				//Close the txt file
-				out.close();
-				socket.close();
-				System.out.println("Image " + (i+1) + " is saved.");
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
+
+			}
+			catch(IOException e){
 				e.printStackTrace();
 			}
+
 		}
+
+
+
+
+
+
+		//		System.out.println("Saving the images...");
+		//		//Loop through all imageUrls
+		//		for(int i=0; i<imageUrls.size(); i++){
+		//			String uri1;
+		//			String uri2;
+		//			try {
+		//				String[] tokensUri = imageUrls.get(i).split("/", 2);
+		//				//If the domain name is already in the url, we split it 
+		//				if(tokensUri[0].contains(".")){
+		//					uri1 = tokensUri[0];
+		//					uri2 = tokensUri[1];
+		//				}
+		//				//If the domain name is not in the url, we get it from the parser
+		//				else{
+		//					uri1 = parser.getUri1();
+		//					uri2 = imageUrls.get(i);
+		//				}
+		//				//Make a new file to save the image
+		//				PrintWriter out = new PrintWriter("Image_" + (i+1) + ".txt");
+		//				//Create a GET-request for the imageUrl. 
+		//				Socket socket = new Socket(uri1,80);
+		//				PrintWriter pw = new PrintWriter(socket.getOutputStream());
+		////				pw.println("GET" + " /" + uri2 + " HTTP/1.0");
+		////				pw.println("host: " + uri1);
+		////				pw.println();
+		////				pw.flush();
+		//				pw.println("GET" +  " /" + uri2 + " HTTP/" + parser.gethTTPVersion());
+		//				pw.println("host: " + uri1);
+		//				pw.println("From: user@student.kuleuven.be");
+		//				pw.println("User-Agent: HTTPTool/" + parser.gethTTPVersion());
+		//				pw.println();
+		//				pw.flush();
+		//				BufferedReader inFromServer1 = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		//				String line;
+		//				//Boolean to check of the recevied Html-code already started with the real image code (not the header info)
+		//				boolean imageCodeIsStarted = false;
+		//				while ((line = inFromServer1.readLine()) != null) {
+		//					//Only save the code from the real image 
+		//					if(imageCodeIsStarted){
+		//						out.println(line);
+		//					}
+		//					if(!imageCodeIsStarted && line.isEmpty()){
+		//						imageCodeIsStarted = true;
+		//					}
+		//				}
+		//				//Close the txt file
+		//				out.close();
+		//				socket.close();
+		//				System.out.println("Image " + (i+1) + " is saved.");
+		//			} catch (UnknownHostException e) {
+		//				e.printStackTrace();
+		//			} catch (IOException e) {
+		//				e.printStackTrace();
+		//			}
+		//		}
 
 	}
 
